@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ print_item.title }} - 3D Printing Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'prints:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'prints:print_list' %}">All Prints</a></li>
+            <li class="breadcrumb-item"><a href="{{ print_item.category.get_absolute_url }}">{{ print_item.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ print_item.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Print Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h1 class="h2 fw-bold mb-3">{{ print_item.title }}</h1>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-{{ print_item.get_difficulty_color }} fs-6">{{ print_item.get_difficulty_display }}</span>
+                                <span class="badge bg-secondary fs-6">{{ print_item.category.name }}</span>
+                                <span class="badge bg-info fs-6">{{ print_item.filament_type }}</span>
+                            </div>
+                            <p class="text-muted mb-3">By <strong>{{ print_item.author.username }}</strong> • {{ print_item.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-flex flex-column gap-2">
+                                <button class="btn btn-outline-danger like-btn" data-print-id="{{ print_item.pk }}">
+                                    <i class="fas fa-heart {% if user_liked %}fas{% else %}far{% endif %} me-2"></i>
+                                    <span class="like-count">{{ print_item.likes_count }}</span>
+                                </button>
+                                {% if print_item.stl_file %}
+                                    <a href="{{ print_item.stl_file.url }}" class="btn btn-success" download>
+                                        <i class="fas fa-download me-2"></i>Download STL
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Image -->
+            {% if print_item.main_image %}
+            <div class="card mb-4">
+                <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="max-height: 500px; object-fit: cover;">
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Description</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ print_item.description|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Print Specifications -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Print Specifications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <strong>Print Time:</strong> {{ print_item.print_time_hours }} hours
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-weight text-primary me-2"></i>
+                                <strong>Filament Amount:</strong> {{ print_item.filament_amount_grams }}g
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-layer-group text-primary me-2"></i>
+                                <strong>Layer Height:</strong> {{ print_item.layer_height }}mm
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-percentage text-primary me-2"></i>
+                                <strong>Infill:</strong> {{ print_item.infill_percentage }}%
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-cube text-primary me-2"></i>
+                                <strong>Filament Type:</strong> {{ print_item.filament_type }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="spec-item">
+                                <i class="fas fa-signal text-primary me-2"></i>
+                                <strong>Difficulty:</strong> {{ print_item.get_difficulty_display }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'prints:add_comment' print_item.pk %}" class="mb-4">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea class="form-control" name="content" rows="3" placeholder="Share your thoughts about this print..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Please <a href="/admin/">login</a> to post comments.
+                        </div>
+                    {% endif %}
+
+                    {% if comments %}
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                            <div class="comment-item border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong>{{ comment.author.username }}</strong>
+                                        <small class="text-muted ms-2">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0">{{ comment.content|linebreaks }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No comments yet. Be the first to comment!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Stats Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                                <h6 class="fw-bold">{{ print_item.views_count }}</h6>
+                                <small class="text-muted">Views</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                                <h6 class="fw-bold">{{ print_item.likes_count }}</h6>
+                                <small class="text-muted">Likes</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <i class="fas fa-download fa-2x text-success mb-2"></i>
+                                <h6 class="fw-bold">{{ print_item.downloads_count }}</h6>
+                                <small class="text-muted">Downloads</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Prints -->
+            {% if related_prints %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cube me-2"></i>Related Prints</h5>
+                </div>
+                <div class="card-body">
+                    {% for related_print in related_prints %}
+                    <div class="d-flex mb-3">
+                        {% if related_print.main_image %}
+                            <img src="{{ related_print.main_image.url }}" class="rounded me-3" alt="{{ related_print.title }}" style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-cube text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <a href="{{ related_print.get_absolute_url }}" class="text-decoration-none">{{ related_print.title }}</a>
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-eye me-1"></i>{{ related_print.views_count }}
+                                <i class="fas fa-heart ms-2 me-1"></i>{{ related_print.likes_count }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Author Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Author</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="author-avatar mb-3">
+                        <i class="fas fa-user-circle fa-4x text-muted"></i>
+                    </div>
+                    <h6 class="fw-bold">{{ print_item.author.username }}</h6>
+                    <p class="text-muted small mb-3">Member since {{ print_item.author.date_joined|date:"M Y" }}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <span class="badge bg-primary">{{ print_item.author.prints.count }} prints</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const printId = this.dataset.printId;
+            const heartIcon = this.querySelector('i');
+            const likeCount = this.querySelector('.like-count');
+            
+            fetch(`/prints/${printId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked) {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                    this.classList.remove('btn-outline-danger');
+                    this.classList.add('btn-danger');
+                } else {
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                    this.classList.remove('btn-danger');
+                    this.classList.add('btn-outline-danger');
+                }
+                likeCount.textContent = data.likes_count;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

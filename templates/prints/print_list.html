@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Prints - 3D Printing Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold">
+                <i class="fas fa-cube me-2"></i>All 3D Prints
+            </h1>
+            <p class="text-muted">Discover amazing 3D prints from our community</p>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search_query }}" placeholder="Search prints...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.slug }}" 
+                                            {% if current_category == category.slug %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="">All Levels</option>
+                                <option value="beginner" {% if current_difficulty == 'beginner' %}selected{% endif %}>Beginner</option>
+                                <option value="intermediate" {% if current_difficulty == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                                <option value="advanced" {% if current_difficulty == 'advanced' %}selected{% endif %}>Advanced</option>
+                                <option value="expert" {% if current_difficulty == 'expert' %}selected{% endif %}>Expert</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sort" class="form-label">Sort by</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
+                                <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                                <option value="likes" {% if current_sort == 'likes' %}selected{% endif %}>Most Liked</option>
+                                <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Filter
+                            </button>
+                            <a href="{% url 'prints:print_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Info -->
+    {% if page_obj %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <p class="text-muted">
+                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} prints
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Prints Grid -->
+    {% if page_obj %}
+        <div class="row g-4">
+            {% for print_item in page_obj %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm print-card">
+                    {% if print_item.main_image %}
+                        <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-cube fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-{{ print_item.get_difficulty_color }}">{{ print_item.get_difficulty_display }}</span>
+                            <small class="text-muted">{{ print_item.category.name }}</small>
+                        </div>
+                        
+                        <h5 class="card-title">{{ print_item.title }}</h5>
+                        <p class="card-text text-muted flex-grow-1">{{ print_item.description|truncatewords:15 }}</p>
+                        
+                        <div class="mb-3">
+                            <div class="row g-2 small text-muted">
+                                <div class="col-6">
+                                    <i class="fas fa-clock me-1"></i>{{ print_item.print_time_hours }}h
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-weight me-1"></i>{{ print_item.filament_amount_grams }}g
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-layer-group me-1"></i>{{ print_item.layer_height }}mm
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-percentage me-1"></i>{{ print_item.infill_percentage }}%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div class="d-flex gap-3 text-muted small">
+                                <span><i class="fas fa-eye me-1"></i>{{ print_item.views_count }}</span>
+                                <span><i class="fas fa-heart me-1"></i>{{ print_item.likes_count }}</span>
+                                <span><i class="fas fa-download me-1"></i>{{ print_item.downloads_count }}</span>
+                            </div>
+                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Prints pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="row">
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h3 class="text-muted">No prints found</h3>
+                <p class="text-muted">Try adjusting your search criteria or browse all prints.</p>
+                <a href="{% url 'prints:print_list' %}" class="btn btn-primary">Browse All Prints</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
