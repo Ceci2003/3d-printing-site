@@ -1,16 +1,11 @@
 name: CI/CD
-
 on:
   push:
-    tags: ['v*']
     branches: ['main']
-
+    tags: ['v*']
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      IMAGE: tsviliev/3d-printing   # Docker Hub име
-      TAG: prod
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -22,7 +17,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE }}:${{ env.TAG }}
-            ${{ env.IMAGE }}:${{ github.ref_name || 'ci' }}
+            tsviliev/3d-printing/3d-printing-site:prod
+            tsviliev/3d-printing/3d-printing-site:${{ github.ref_name || 'ci' }}
       - name: Trigger Portainer redeploy
         run: curl -fsSL -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
