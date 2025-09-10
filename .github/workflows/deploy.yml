@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE: your-docker-user/demo3d   # ← смени с твоето Docker Hub име
+      IMAGE: tsviliev/3d-printing   # Docker Hub име
       TAG: prod
     steps:
       - uses: actions/checkout@v4
