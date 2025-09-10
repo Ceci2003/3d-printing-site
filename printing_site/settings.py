@@ -9,7 +9,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "change_me_local_dev"
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ["*"]   # за локална работа и първи деплой
 
 # Application definition
