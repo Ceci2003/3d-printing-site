@@ -7,7 +7,7 @@ if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; t
 python - <<'PY'
 import os
 from django.contrib.auth import get_user_model
-os.environ.setdefault("DJANGO_SETTINGS_MODULE","app.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", os.environ.get("DJANGO_SETTINGS_MODULE", "printing_site.settings"))
 import django; django.setup()
 User = get_user_model()
 u = os.environ["DJANGO_SUPERUSER_USERNAME"]
