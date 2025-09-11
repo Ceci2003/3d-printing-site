@@ -1,27 +1,71 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}Home - 3D Printing Hub{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section bg-gradient-primary text-white py-5">
+<section class="hero-section">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row align-items-center min-vh-75">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Welcome to 3D Printing Hub</h1>
-                <p class="lead mb-4">Discover amazing 3D prints, share your creations, and connect with a community of makers and designers.</p>
-                <div class="d-flex gap-3">
-                    <a href="{% url 'prints:print_list' %}" class="btn btn-light btn-lg">
-                        <i class="fas fa-search me-2"></i>Browse Prints
-                    </a>
-                    <a href="#" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-upload me-2"></i>Upload Print
-                    </a>
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-4 fade-in-up">
+                        Welcome to <span class="text-gradient">3D Printing Hub</span>
+                    </h1>
+                    <p class="lead mb-5 fade-in-up">
+                        Discover amazing 3D prints, share your creations, and connect with a global community of makers, designers, and innovators.
+                    </p>
+                    <div class="hero-actions d-flex flex-wrap gap-3 fade-in-up">
+                        <a href="{% url 'prints:print_list' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Explore Prints
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-upload me-2"></i>Share Your Design
+                        </a>
+                    </div>
+                    <div class="hero-stats mt-5 fade-in-up">
+                        <div class="row g-4">
+                            <div class="col-4">
+                                <div class="stat-highlight">
+                                    <h4 class="fw-bold text-white mb-1">1,234</h4>
+                                    <small class="text-white-50">Active Prints</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-highlight">
+                                    <h4 class="fw-bold text-white mb-1">567</h4>
+                                    <small class="text-white-50">Community Members</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-highlight">
+                                    <h4 class="fw-bold text-white mb-1">8,901</h4>
+                                    <small class="text-white-50">Downloads</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <i class="fas fa-cube display-1 opacity-75"></i>
+            <div class="col-lg-6">
+                <div class="hero-visual text-center">
+                    <div class="hero-icon-container">
+                        <div class="hero-icon pulse">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="floating-elements">
+                            <div class="floating-element element-1">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="floating-element element-2">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="floating-element element-3">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -29,50 +73,81 @@
 
 <!-- Featured Prints Section -->
 {% if featured_prints %}
-<section class="py-5">
+<section class="py-5 bg-white">
     <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2 class="h3 fw-bold">
-                    <i class="fas fa-star text-warning me-2"></i>Featured Prints
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="h2 fw-bold mb-3">
+                    <i class="fas fa-star text-warning me-3"></i>Featured Prints
                 </h2>
-                <p class="text-muted">Handpicked amazing 3D prints from our community</p>
+                <p class="text-muted fs-5">Handpicked amazing 3D prints from our talented community</p>
             </div>
         </div>
         
         <div class="row g-4">
             {% for print_item in featured_prints %}
             <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm print-card">
+                <div class="card h-100 print-card">
                     {% if print_item.main_image %}
-                        <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-img-container">
+                            <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
                     {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <i class="fas fa-cube fa-3x text-muted"></i>
+                        <div class="card-img-container">
+                            <img src="https://picsum.photos/400/200?random={{ forloop.counter }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 200px; object-fit: cover;">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
                         </div>
                     {% endif %}
                     
                     <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-{{ print_item.get_difficulty_color }}">{{ print_item.get_difficulty_display }}</span>
-                            <small class="text-muted">{{ print_item.category.name }}</small>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge print-difficulty-{{ print_item.difficulty }}">{{ print_item.get_difficulty_display }}</span>
+                            <span class="badge bg-secondary">{{ print_item.category.name }}</span>
                         </div>
                         
-                        <h5 class="card-title">{{ print_item.title }}</h5>
+                        <h5 class="card-title fw-bold">{{ print_item.title }}</h5>
                         <p class="card-text text-muted flex-grow-1">{{ print_item.description|truncatewords:15 }}</p>
+                        
+                        <div class="print-meta mb-3">
+                            <div class="row g-2 small text-muted">
+                                <div class="col-6">
+                                    <i class="fas fa-clock me-1"></i>{{ print_item.print_time_hours }}h
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-weight me-1"></i>{{ print_item.filament_amount_grams }}g
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-auto">
                             <div class="d-flex gap-3 text-muted small">
                                 <span><i class="fas fa-eye me-1"></i>{{ print_item.views_count }}</span>
                                 <span><i class="fas fa-heart me-1"></i>{{ print_item.likes_count }}</span>
-                                <span><i class="fas fa-clock me-1"></i>{{ print_item.print_time_hours }}h</span>
+                                <span><i class="fas fa-download me-1"></i>{{ print_item.downloads_count }}</span>
                             </div>
-                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">View Details</a>
+                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-arrow-right me-1"></i>View
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'prints:print_list' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-th-large me-2"></i>View All Featured Prints
+            </a>
         </div>
     </div>
 </section>
@@ -80,39 +155,53 @@
 
 <!-- Recent Prints Section -->
 {% if recent_prints %}
-<section class="py-5 bg-light">
+<section class="py-5 bg-gray-50">
     <div class="container">
-        <div class="row mb-4">
+        <div class="row mb-5">
             <div class="col-12 d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="h3 fw-bold">
-                        <i class="fas fa-clock me-2"></i>Recent Prints
+                    <h2 class="h2 fw-bold mb-2">
+                        <i class="fas fa-clock me-3"></i>Latest Prints
                     </h2>
-                    <p class="text-muted">Latest additions to our collection</p>
+                    <p class="text-muted fs-5">Fresh designs from our creative community</p>
                 </div>
-                <a href="{% url 'prints:print_list' %}" class="btn btn-outline-primary">View All</a>
+                <a href="{% url 'prints:print_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-2"></i>View All
+                </a>
             </div>
         </div>
         
         <div class="row g-4">
             {% for print_item in recent_prints %}
             <div class="col-lg-3 col-md-6">
-                <div class="card h-100 shadow-sm print-card">
+                <div class="card h-100 print-card">
                     {% if print_item.main_image %}
-                        <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 150px; object-fit: cover;">
+                        <div class="card-img-container">
+                            <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 150px; object-fit: cover;">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </div>
+                        </div>
                     {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-cube fa-2x text-muted"></i>
+                        <div class="card-img-container">
+                            <img src="https://picsum.photos/300/150?random={{ forloop.counter|add:10 }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 150px; object-fit: cover;">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </div>
                         </div>
                     {% endif %}
                     
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-{{ print_item.get_difficulty_color }} badge-sm">{{ print_item.get_difficulty_display }}</span>
+                            <span class="badge print-difficulty-{{ print_item.difficulty }} badge-sm">{{ print_item.get_difficulty_display }}</span>
                             <small class="text-muted">{{ print_item.category.name }}</small>
                         </div>
                         
-                        <h6 class="card-title">{{ print_item.title }}</h6>
+                        <h6 class="card-title fw-bold">{{ print_item.title }}</h6>
                         <p class="card-text text-muted small flex-grow-1">{{ print_item.description|truncatewords:10 }}</p>
                         
                         <div class="d-flex justify-content-between align-items-center mt-auto">
@@ -120,7 +209,9 @@
                                 <span><i class="fas fa-eye me-1"></i>{{ print_item.views_count }}</span>
                                 <span><i class="fas fa-heart me-1"></i>{{ print_item.likes_count }}</span>
                             </div>
-                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">View</a>
+                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -133,31 +224,33 @@
 
 <!-- Categories Section -->
 {% if categories %}
-<section class="py-5">
+<section class="py-5 bg-white">
     <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2 class="h3 fw-bold">
-                    <i class="fas fa-th-large me-2"></i>Browse by Category
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="h2 fw-bold mb-3">
+                    <i class="fas fa-th-large me-3"></i>Browse by Category
                 </h2>
-                <p class="text-muted">Explore prints organized by category</p>
+                <p class="text-muted fs-5">Explore prints organized by category and find exactly what you're looking for</p>
             </div>
         </div>
         
         <div class="row g-4">
             {% for category in categories %}
             <div class="col-lg-3 col-md-6">
-                <div class="card h-100 shadow-sm category-card">
+                <div class="card h-100 category-card">
                     <div class="card-body text-center">
-                        <div class="category-icon mb-3">
-                            <i class="fas fa-cube fa-3x text-primary"></i>
+                        <div class="category-icon mb-4">
+                            <img src="https://picsum.photos/80/80?random={{ forloop.counter|add:20 }}" alt="{{ category.name }}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
                         </div>
-                        <h5 class="card-title">{{ category.name }}</h5>
-                        <p class="card-text text-muted">{{ category.description|truncatewords:10 }}</p>
-                        <div class="mb-3">
-                            <span class="badge bg-secondary">{{ category.print_count }} prints</span>
+                        <h5 class="card-title fw-bold mb-3">{{ category.name }}</h5>
+                        <p class="card-text text-muted mb-4">{{ category.description|truncatewords:10 }}</p>
+                        <div class="mb-4">
+                            <span class="badge bg-primary">{{ category.print_count }} prints</span>
                         </div>
-                        <a href="{{ category.get_absolute_url }}" class="btn btn-outline-primary">Browse Category</a>
+                        <a href="{{ category.get_absolute_url }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Browse Category
+                        </a>
                     </div>
                 </div>
             </div>
@@ -168,35 +261,55 @@
 {% endif %}
 
 <!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
+<section class="py-5 bg-gradient-primary text-white">
     <div class="container">
         <div class="row text-center">
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-item">
-                    <i class="fas fa-cube fa-2x mb-2"></i>
-                    <h3 class="fw-bold">1,234</h3>
-                    <p class="mb-0">Total Prints</p>
+                    <i class="fas fa-cube fa-2x mb-3"></i>
+                    <h3 class="fw-bold mb-2">1,234</h3>
+                    <p class="mb-0 fw-medium">Total Prints</p>
                 </div>
             </div>
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-item">
-                    <i class="fas fa-users fa-2x mb-2"></i>
-                    <h3 class="fw-bold">567</h3>
-                    <p class="mb-0">Active Users</p>
+                    <i class="fas fa-users fa-2x mb-3"></i>
+                    <h3 class="fw-bold mb-2">567</h3>
+                    <p class="mb-0 fw-medium">Active Users</p>
                 </div>
             </div>
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-item">
-                    <i class="fas fa-download fa-2x mb-2"></i>
-                    <h3 class="fw-bold">8,901</h3>
-                    <p class="mb-0">Downloads</p>
+                    <i class="fas fa-download fa-2x mb-3"></i>
+                    <h3 class="fw-bold mb-2">8,901</h3>
+                    <p class="mb-0 fw-medium">Downloads</p>
                 </div>
             </div>
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-item">
-                    <i class="fas fa-heart fa-2x mb-2"></i>
-                    <h3 class="fw-bold">2,345</h3>
-                    <p class="mb-0">Likes</p>
+                    <i class="fas fa-heart fa-2x mb-3"></i>
+                    <h3 class="fw-bold mb-2">2,345</h3>
+                    <p class="mb-0 fw-medium">Likes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="h2 fw-bold mb-4">Ready to Start Your 3D Printing Journey?</h2>
+                <p class="text-muted fs-5 mb-5">Join our community of makers and start creating amazing 3D prints today. Share your designs, discover new projects, and connect with fellow enthusiasts.</p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{% url 'prints:print_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Explore Prints
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Join Community
+                    </a>
                 </div>
             </div>
         </div>

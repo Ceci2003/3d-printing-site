@@ -1,33 +1,32 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}All Prints - 3D Printing Hub{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h2 fw-bold">
-                <i class="fas fa-cube me-2"></i>All 3D Prints
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="h1 fw-bold mb-3">
+                <i class="fas fa-cube me-3"></i>All 3D Prints
             </h1>
-            <p class="text-muted">Discover amazing 3D prints from our community</p>
+            <p class="text-muted fs-5">Discover amazing 3D prints from our talented community</p>
         </div>
     </div>
 
     <!-- Filters and Search -->
-    <div class="row mb-4">
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="card">
+            <div class="card shadow-soft">
                 <div class="card-body">
-                    <form method="get" class="row g-3">
+                    <form method="get" class="row g-4">
                         <div class="col-md-4">
-                            <label for="search" class="form-label">Search</label>
+                            <label for="search" class="form-label fw-semibold">Search Prints</label>
                             <input type="text" class="form-control" id="search" name="search" 
-                                   value="{{ search_query }}" placeholder="Search prints...">
+                                   value="{{ search_query }}" placeholder="Search by title, description...">
                         </div>
                         <div class="col-md-3">
-                            <label for="category" class="form-label">Category</label>
+                            <label for="category" class="form-label fw-semibold">Category</label>
                             <select class="form-select" id="category" name="category">
                                 <option value="">All Categories</option>
                                 {% for category in categories %}
@@ -39,7 +38,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <label for="difficulty" class="form-label fw-semibold">Difficulty</label>
                             <select class="form-select" id="difficulty" name="difficulty">
                                 <option value="">All Levels</option>
                                 <option value="beginner" {% if current_difficulty == 'beginner' %}selected{% endif %}>Beginner</option>
@@ -49,7 +48,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="sort" class="form-label">Sort by</label>
+                            <label for="sort" class="form-label fw-semibold">Sort by</label>
                             <select class="form-select" id="sort" name="sort">
                                 <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
                                 <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Most Popular</option>
@@ -58,12 +57,14 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-2"></i>Filter
-                            </button>
-                            <a href="{% url 'prints:print_list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i>Clear
-                            </a>
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>Apply Filters
+                                </button>
+                                <a href="{% url 'prints:print_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Clear All
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -73,39 +74,62 @@
 
     <!-- Results Info -->
     {% if page_obj %}
-        <div class="row mb-3">
+        <div class="row mb-4">
             <div class="col-12">
-                <p class="text-muted">
-                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} prints
-                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} prints
+                    </p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="grid-view" title="Grid View">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="list-view" title="List View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     {% endif %}
 
     <!-- Prints Grid -->
     {% if page_obj %}
-        <div class="row g-4">
+        <div class="row g-4" id="prints-container">
             {% for print_item in page_obj %}
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm print-card">
+            <div class="col-lg-4 col-md-6 print-item">
+                <div class="card h-100 print-card">
                     {% if print_item.main_image %}
-                        <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-img-container">
+                            <img src="{{ print_item.main_image.url }}" class="card-img-top" alt="{{ print_item.title }}">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
                     {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <i class="fas fa-cube fa-3x text-muted"></i>
+                        <div class="card-img-container">
+                            <img src="https://picsum.photos/400/200?random={{ forloop.counter|add:30 }}" class="card-img-top" alt="{{ print_item.title }}" style="height: 200px; object-fit: cover;">
+                            <div class="card-overlay">
+                                <a href="{{ print_item.get_absolute_url }}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
                         </div>
                     {% endif %}
                     
                     <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-{{ print_item.get_difficulty_color }}">{{ print_item.get_difficulty_display }}</span>
-                            <small class="text-muted">{{ print_item.category.name }}</small>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge print-difficulty-{{ print_item.difficulty }}">{{ print_item.get_difficulty_display }}</span>
+                            <span class="badge bg-secondary">{{ print_item.category.name }}</span>
                         </div>
                         
-                        <h5 class="card-title">{{ print_item.title }}</h5>
+                        <h5 class="card-title fw-bold">{{ print_item.title }}</h5>
                         <p class="card-text text-muted flex-grow-1">{{ print_item.description|truncatewords:15 }}</p>
                         
-                        <div class="mb-3">
+                        <div class="print-meta mb-3">
                             <div class="row g-2 small text-muted">
                                 <div class="col-6">
                                     <i class="fas fa-clock me-1"></i>{{ print_item.print_time_hours }}h
@@ -128,7 +152,9 @@
                                 <span><i class="fas fa-heart me-1"></i>{{ print_item.likes_count }}</span>
                                 <span><i class="fas fa-download me-1"></i>{{ print_item.downloads_count }}</span>
                             </div>
-                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">View Details</a>
+                            <a href="{{ print_item.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-arrow-right me-1"></i>View
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -179,12 +205,54 @@
     {% else %}
         <div class="row">
             <div class="col-12 text-center py-5">
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h3 class="text-muted">No prints found</h3>
-                <p class="text-muted">Try adjusting your search criteria or browse all prints.</p>
-                <a href="{% url 'prints:print_list' %}" class="btn btn-primary">Browse All Prints</a>
+                <div class="empty-state">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No prints found</h3>
+                    <p class="text-muted fs-5 mb-4">Try adjusting your search criteria or browse all prints.</p>
+                    <a href="{% url 'prints:print_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-th-large me-2"></i>Browse All Prints
+                    </a>
+                </div>
             </div>
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    const printsContainer = document.getElementById('prints-container');
+    
+    if (gridViewBtn && listViewBtn && printsContainer) {
+        gridViewBtn.addEventListener('click', function() {
+            printsContainer.className = 'row g-4';
+            gridViewBtn.classList.add('btn-primary');
+            gridViewBtn.classList.remove('btn-outline-secondary');
+            listViewBtn.classList.add('btn-outline-secondary');
+            listViewBtn.classList.remove('btn-primary');
+        });
+        
+        listViewBtn.addEventListener('click', function() {
+            printsContainer.className = 'row g-3';
+            listViewBtn.classList.add('btn-primary');
+            listViewBtn.classList.remove('btn-outline-secondary');
+            gridViewBtn.classList.add('btn-outline-secondary');
+            gridViewBtn.classList.remove('btn-primary');
+            
+            // Convert to list view
+            const printItems = printsContainer.querySelectorAll('.print-item');
+            printItems.forEach(item => {
+                item.className = 'col-12 print-item';
+            });
+        });
+        
+        // Set default to grid view
+        gridViewBtn.click();
+    }
+});
+</script>
 {% endblock %}

@@ -9,7 +9,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "change_me_local_dev"
-DEBUG = False
+DEBUG = True  # Enable debug mode for development
 ALLOWED_HOSTS = ["*"]   # за локална работа и първи деплой
 
 # Application definition
@@ -107,6 +107,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Additional static files directories for development
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Media files
 MEDIA_URL = '/media/'

@@ -15,6 +15,7 @@ urlpatterns = [
     path("health", health),
 ]
 
-# Serve media files during development
+# Serve static and media files during development
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

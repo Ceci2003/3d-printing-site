@@ -345,5 +345,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     });
 
+    // Image fallback handling
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function() {
+            // Create a fallback div with icon
+            const fallback = document.createElement('div');
+            fallback.className = 'd-flex align-items-center justify-content-center bg-light';
+            fallback.style.cssText = this.style.cssText;
+            fallback.innerHTML = '<i class="fas fa-cube fa-3x text-muted"></i>';
+            
+            // Replace the broken image with fallback
+            this.parentNode.replaceChild(fallback, this);
+        });
+    });
+
     console.log('3D Printing Hub initialized successfully!');
 });
