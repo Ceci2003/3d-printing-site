@@ -12,6 +12,9 @@ SECRET_KEY = "change_me_local_dev"
 DEBUG = True  # Enable debug mode for development
 ALLOWED_HOSTS = ["*"]   # за локална работа и първи деплой
 
+# Check if we're in production (when deployed with domain)
+IS_PRODUCTION = os.environ.get('DOMAIN') or not DEBUG
+
 # CSRF and Security Settings for Production
 CSRF_TRUSTED_ORIGINS = [
     "https://3d-printing.beekeeperassistant.com",
@@ -142,9 +145,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Additional production settings
 USE_TZ = True
-
-# Check if we're in production (when deployed with domain)
-IS_PRODUCTION = os.environ.get('DOMAIN') or not DEBUG
 
 # Session and security settings
 if IS_PRODUCTION:
